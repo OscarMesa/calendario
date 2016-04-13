@@ -173,7 +173,7 @@
         
             $(function() { // document ready
 
-                crearCalenadirio({'slotDuration': '00:15:00'});
+                crearCalenadirio({'slotDuration': '00:30:00'});
 
                 $('#selectIntervalo').select2();
 
@@ -199,8 +199,8 @@
                                     title: data.descripcionCita,
                                     start: new Date(data.startDate),
                                     end: new Date(data.enDate),
-                                    color: data.color
-                                  //  allDay: allDay
+                                    color: data.color,
+                                    allDay: false
                                 },
                                 true // make the event "stick"
                             );
@@ -224,6 +224,7 @@
                 function crearCalenadirio(settiongs){
 
                     $('#calendar').fullCalendar({
+                       // slotEventOverlap: false,
                         axisFormat: 'h(:mm)a',
                         schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
                         now: new Date(),
@@ -235,16 +236,12 @@
                         unselectAuto: false,
                         aspectRatio: 1.5,
                         scrollTime: '00:00', // undo default 6am scrollTime
-                        selectOverlap: false,
-                        slotEventOverlap: false,
-                        eventOverlap: function(stillEvent, movingEvent){
-                            console.log("@@@@@");
-                            return false;
-                        },
+                        allDay: false,
                         header: {
                             left: 'today prev,next',
                             center: 'Candario oscar',
-                            right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+                            //right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+                            right: 'agendaWeek,month'
                         },
                         defaultView: 'agendaWeek',
                         views: {
@@ -253,38 +250,6 @@
                                 duration: { days: 3 }
                             }
                         },
-                        resourceLabelText: 'Rooms',
-                        resources: [
-                            { id: 'a', title: 'Auditorium A' },
-                            { id: 'b', title: 'Auditorium B', eventColor: 'green' },
-                            { id: 'c', title: 'Auditorium C', eventColor: 'orange' },
-                            { id: 'd', title: 'Auditorium D', children: [
-                                { id: 'd1', title: 'Room D1' },
-                                { id: 'd2', title: 'Room D2' }
-                            ] },
-                            { id: 'e', title: 'Auditorium E' },
-                            { id: 'f', title: 'Auditorium F', eventColor: 'red' },
-                            { id: 'g', title: 'Auditorium G' },
-                            { id: 'h', title: 'Auditorium H' },
-                            { id: 'i', title: 'Auditorium I' },
-                            { id: 'j', title: 'Auditorium J' },
-                            { id: 'k', title: 'Auditorium K' },
-                            { id: 'l', title: 'Auditorium L' },
-                            { id: 'm', title: 'Auditorium M' },
-                            { id: 'n', title: 'Auditorium N' },
-                            { id: 'o', title: 'Auditorium O' },
-                            { id: 'p', title: 'Auditorium P' },
-                            { id: 'q', title: 'Auditorium Q' },
-                            { id: 'r', title: 'Auditorium R' },
-                            { id: 's', title: 'Auditorium S' },
-                            { id: 't', title: 'Auditorium T' },
-                            { id: 'u', title: 'Auditorium U' },
-                            { id: 'v', title: 'Auditorium V' },
-                            { id: 'w', title: 'Auditorium W' },
-                            { id: 'x', title: 'Auditorium X' },
-                            { id: 'y', title: 'Auditorium Y' },
-                            { id: 'z', title: 'Auditorium Z' }
-                        ],
                         events: function(start, end, timezone, callback){
 
                             $.ajax({
@@ -332,6 +297,31 @@
                             });
                         },
                         eventDrop : function(event, delta, revertFunc, jsEvent, ui, view ){
+
+                            var start = new Date(event.start);
+                            var end = new Date(event.end);
+
+                            var overlap = $('#calendar').fullCalendar('clientEvents', function(ev) {
+                                if( ev == event) {
+                                    return false;
+                                }
+                                var estart = new Date(ev.start);
+                                var eend = new Date(ev.end);
+
+                                return (
+                                    ( Math.round(start) > Math.round(estart) && Math.round(start) < Math.round(eend) )
+                                    ||
+                                    ( Math.round(end) > Math.round(estart) && Math.round(end) < Math.round(eend) )
+                                    ||
+                                    ( Math.round(start) < Math.round(estart) && Math.round(end) > Math.round(eend) )
+                                );
+                            });
+                            if (overlap.length){
+                                revertFunc();
+                                return false;
+                            }
+
+
                             bootbox.confirm({
                                 message: "Esta seguro de realizar el cambio de cita?", 
                                 locale: 'es', 
@@ -366,6 +356,9 @@
                             });  
     //
                         },
+                        slotEventOverlap:false,
+                        eventOverlap: false,
+                        selectOverlap: false,
                         /*dayClick: function(date, jsEvent, view, resource) {
                             console.log(
                                 'dayClick',
