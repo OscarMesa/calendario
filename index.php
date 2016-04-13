@@ -24,7 +24,7 @@
     <link href="libraries/fullcalendar/scheduler.min.css" rel="stylesheet">
     <link href="//cdnjs.cloudflare.com/ajax/libs/octicons/3.5.0/octicons.min.css" rel="stylesheet">
     <link href="libraries/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css" rel="stylesheet">
-
+    <link href="libraries/select2-4.0.2/dist/css/select2.min.css" rel="stylesheet" />
      
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -75,9 +75,16 @@
       </div>
 
       <div class="row marketing">
+        
+        <div class="col-lg-12" style="padding-left: 11%;">
+            <label for="selectIntervalo">Intervalo:  </label>
+            <select style="width: 30%;" id="selectIntervalo">
+                <option value="00:15:00">15 minutos</option>
+                <option value="00:30:00">30 minutos</option>
+            </select>
+        </div>
         <div class="col-lg-12">
-          <h4>calendario</h4>
-          
+         
             <div id='calendar'></div>
 
         </div>
@@ -150,7 +157,7 @@
 
 
     <script src="libraries/fullcalendar/lib/fullcalendar.min.js"></script>
-    <script src='http://fullcalendar.io/js/fullcalendar-2.6.0/lang-all.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/2.7.0-beta/lang-all.js'></script>
     
     <script src='libraries/fullcalendar/lib/gcal.js'></script> 
 
@@ -160,11 +167,20 @@
 
     <script src="libraries/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
 
+    <script src="libraries/select2-4.0.2/dist/js/select2.min.js"></script>
+
     <script type="text/javascript">
         
             $(function() { // document ready
 
+                crearCalenadirio({'slotDuration': '00:15:00'});
 
+                $('#selectIntervalo').select2();
+
+                $("#selectIntervalo").change(function(){ 
+                    $("#calendar").fullCalendar('destroy');      
+                    crearCalenadirio({'slotDuration': $(this).val()});
+                });    
                 $('#cp2').colorpicker();   
 
                 $(document).on('click', "#savEvent", function(){
@@ -203,157 +219,164 @@
                 $('#modalCitaNueva').on('show.bs.modal', function () {
                 });
 
-                $('#calendar').fullCalendar({
-                    schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-                    now: '2016-01-07',
-                    lang: 'es',
-                    selectable: true,
-                    selectHelper: true,
-                    editable: false, // enable draggable events
-                    unselectAuto: false,
-                    aspectRatio: 1.5,
-                    scrollTime: '00:00', // undo default 6am scrollTime
-                    selectOverlap: false,
-                    slotEventOverlap: false,
-                    eventOverlap: function(stillEvent, movingEvent){
-                        console.log("@@@@@");
-                        return false;
-                    },
-                    header: {
-                        left: 'today prev,next',
-                        center: 'Candario oscar',
-                        right: 'timelineDay,timelineThreeDays,agendaWeek,month'
-                    },
-                    defaultView: 'agendaWeek',
-                    views: {
-                        timelineThreeDays: {
-                            type: 'timeline',
-                            duration: { days: 3 }
-                        }
-                    },
-                    resourceLabelText: 'Rooms',
-                    resources: [
-                        { id: 'a', title: 'Auditorium A' },
-                        { id: 'b', title: 'Auditorium B', eventColor: 'green' },
-                        { id: 'c', title: 'Auditorium C', eventColor: 'orange' },
-                        { id: 'd', title: 'Auditorium D', children: [
-                            { id: 'd1', title: 'Room D1' },
-                            { id: 'd2', title: 'Room D2' }
-                        ] },
-                        { id: 'e', title: 'Auditorium E' },
-                        { id: 'f', title: 'Auditorium F', eventColor: 'red' },
-                        { id: 'g', title: 'Auditorium G' },
-                        { id: 'h', title: 'Auditorium H' },
-                        { id: 'i', title: 'Auditorium I' },
-                        { id: 'j', title: 'Auditorium J' },
-                        { id: 'k', title: 'Auditorium K' },
-                        { id: 'l', title: 'Auditorium L' },
-                        { id: 'm', title: 'Auditorium M' },
-                        { id: 'n', title: 'Auditorium N' },
-                        { id: 'o', title: 'Auditorium O' },
-                        { id: 'p', title: 'Auditorium P' },
-                        { id: 'q', title: 'Auditorium Q' },
-                        { id: 'r', title: 'Auditorium R' },
-                        { id: 's', title: 'Auditorium S' },
-                        { id: 't', title: 'Auditorium T' },
-                        { id: 'u', title: 'Auditorium U' },
-                        { id: 'v', title: 'Auditorium V' },
-                        { id: 'w', title: 'Auditorium W' },
-                        { id: 'x', title: 'Auditorium X' },
-                        { id: 'y', title: 'Auditorium Y' },
-                        { id: 'z', title: 'Auditorium Z' }
-                    ],
-                    events: function(start, end, timezone, callback){
+ 
+                
+                function crearCalenadirio(settiongs){
 
-                        $.ajax({
-                            url: 'loaData.php',
-                            dataType: 'json',
-                            data: {
-                                // our hypothetical feed requires UNIX timestamps
-                                start: start.unix(),
-                                end: end.unix()
-                            },
-                            success: function(events) {
-                                callback(events);
+                    $('#calendar').fullCalendar({
+                        axisFormat: 'h(:mm)a',
+                        schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
+                        now: new Date(),
+                        slotDuration: settiongs.slotDuration,
+                        lang: 'es',
+                        selectable: true,
+                        selectHelper: true,
+                        editable: true, // enable draggable events
+                        unselectAuto: false,
+                        aspectRatio: 1.5,
+                        scrollTime: '00:00', // undo default 6am scrollTime
+                        selectOverlap: false,
+                        slotEventOverlap: false,
+                        eventOverlap: function(stillEvent, movingEvent){
+                            console.log("@@@@@");
+                            return false;
+                        },
+                        header: {
+                            left: 'today prev,next',
+                            center: 'Candario oscar',
+                            right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+                        },
+                        defaultView: 'agendaWeek',
+                        views: {
+                            timelineThreeDays: {
+                                type: 'timeline',
+                                duration: { days: 3 }
                             }
-                        });
+                        },
+                        resourceLabelText: 'Rooms',
+                        resources: [
+                            { id: 'a', title: 'Auditorium A' },
+                            { id: 'b', title: 'Auditorium B', eventColor: 'green' },
+                            { id: 'c', title: 'Auditorium C', eventColor: 'orange' },
+                            { id: 'd', title: 'Auditorium D', children: [
+                                { id: 'd1', title: 'Room D1' },
+                                { id: 'd2', title: 'Room D2' }
+                            ] },
+                            { id: 'e', title: 'Auditorium E' },
+                            { id: 'f', title: 'Auditorium F', eventColor: 'red' },
+                            { id: 'g', title: 'Auditorium G' },
+                            { id: 'h', title: 'Auditorium H' },
+                            { id: 'i', title: 'Auditorium I' },
+                            { id: 'j', title: 'Auditorium J' },
+                            { id: 'k', title: 'Auditorium K' },
+                            { id: 'l', title: 'Auditorium L' },
+                            { id: 'm', title: 'Auditorium M' },
+                            { id: 'n', title: 'Auditorium N' },
+                            { id: 'o', title: 'Auditorium O' },
+                            { id: 'p', title: 'Auditorium P' },
+                            { id: 'q', title: 'Auditorium Q' },
+                            { id: 'r', title: 'Auditorium R' },
+                            { id: 's', title: 'Auditorium S' },
+                            { id: 't', title: 'Auditorium T' },
+                            { id: 'u', title: 'Auditorium U' },
+                            { id: 'v', title: 'Auditorium V' },
+                            { id: 'w', title: 'Auditorium W' },
+                            { id: 'x', title: 'Auditorium X' },
+                            { id: 'y', title: 'Auditorium Y' },
+                            { id: 'z', title: 'Auditorium Z' }
+                        ],
+                        events: function(start, end, timezone, callback){
 
-
-
-                    },
-                    select: function(start, end, jsEvent, view, resource) {
-                    
-                        $("#startDate").html(start.format("YYYY-MM-DD  hh:mm"));
-                        $("#enDate").html(end.format("YYYY-MM-DD  hh:mm"));
-                        $("#EventStartDate").val(start.format("YYYY-MM-DD  hh:mm"));
-                        $("#EventEnDate").val(end.format("YYYY-MM-DD  hh:mm"));
-
-                        $("#modalCitaNueva").modal("show");
-                    },
-                    eventResize: function(event, delta, revertFunc, jsEvent, ui, view){
-                        bootbox.confirm({
-                            message: "Esta seguro de realizar el cambio de cita?", 
-                            locale: 'es', 
-                            callback: function(result) {                
-                                if (!result) {                                             
-                                    revertFunc();  
-                                }                                
-                            },
-                            buttons: {
-                                confirm: {
-                                    label: 'Aceptar',
+                            $.ajax({
+                                url: 'loaData.php',
+                                dataType: 'json',
+                                data: {
+                                    // our hypothetical feed requires UNIX timestamps
+                                    start: start.unix(),
+                                    end: end.unix()
                                 },
-                                cancel: {
-                                    label: 'Cancelar',
+                                success: function(events) {
+                                    callback(events);
                                 }
-                            },
-                        });
-                    },
-                    eventDrop : function(event, delta, revertFunc, jsEvent, ui, view ){
-                        bootbox.confirm({
-                            message: "Esta seguro de realizar el cambio de cita?", 
-                            locale: 'es', 
-                            callback: function(result) {                
-                                if (!result) {                                             
-                                    revertFunc();  
-                                }                                
-                            },
-                            buttons: {
-                                confirm: {
-                                    label: 'Aceptar',
-                                },
-                                cancel: {
-                                    label: 'Cancelar',
-                                }
-                            },
-                        });
-                    },
-                    eventRender: function(event, element) {
-                        e  = $("<a id='removEvent"+event._id+"' class='closeon'>X</a>");
-                        element.append( e );
-                        $(document).on("click", "#removEvent"+event._id, function() {
-                            $('#calendar').fullCalendar('removeEvents',event._id);
-                        });
+                            });
 
-                        element.on("dblclick",function(){
-                                $("#descripcionCita").val(event.title);
-                                $("#startDate").html(event.start.format("YYYY-MM-DD  hh:mm"));
-                                $("#enDate").html(event.end.format("YYYY-MM-DD  hh:mm"));
-                                $("#color").val(event.color);
-                                $('#modalCitaNueva').modal('show');
-                        });  
-//
-                    },
-                    /*dayClick: function(date, jsEvent, view, resource) {
-                        console.log(
-                            'dayClick',
-                            date.format(),
-                            resource ? resource.id : '(no resource)'
-                        );
-                    }*/
+
+
+                        },
+                        select: function(start, end, jsEvent, view, resource) {
+                        
+                            $("#startDate").html(start.format("YYYY-MM-DD  hh:mm"));
+                            $("#enDate").html(end.format("YYYY-MM-DD  hh:mm"));
+                            $("#EventStartDate").val(start.format("YYYY-MM-DD  hh:mm"));
+                            $("#EventEnDate").val(end.format("YYYY-MM-DD  hh:mm"));
+
+                            $("#modalCitaNueva").modal("show");
+                        },
+                        eventResize: function(event, delta, revertFunc, jsEvent, ui, view){
+                            bootbox.confirm({
+                                message: "Esta seguro de realizar el cambio de cita?", 
+                                locale: 'es', 
+                                callback: function(result) {                
+                                    if (!result) {                                             
+                                        revertFunc();  
+                                    }                                
+                                },
+                                buttons: {
+                                    confirm: {
+                                        label: 'Aceptar',
+                                    },
+                                    cancel: {
+                                        label: 'Cancelar',
+                                    }
+                                },
+                            });
+                        },
+                        eventDrop : function(event, delta, revertFunc, jsEvent, ui, view ){
+                            bootbox.confirm({
+                                message: "Esta seguro de realizar el cambio de cita?", 
+                                locale: 'es', 
+                                callback: function(result) {                
+                                    if (!result) {                                             
+                                        revertFunc();  
+                                    }                                
+                                },
+                                buttons: {
+                                    confirm: {
+                                        label: 'Aceptar',
+                                    },
+                                    cancel: {
+                                        label: 'Cancelar',
+                                    }
+                                },
+                            });
+                        },
+                        eventRender: function(event, element) {
+                            e  = $("<a id='removEvent"+event._id+"' class='closeon'>X</a>");
+                            element.append( e );
+                            $(document).on("click", "#removEvent"+event._id, function() {
+                                $('#calendar').fullCalendar('removeEvents',event._id);
+                            });
+
+                            element.on("dblclick",function(){
+                                    $("#descripcionCita").val(event.title);
+                                    $("#startDate").html(event.start.format("YYYY-MM-DD  hh:mm"));
+                                    $("#enDate").html(event.end.format("YYYY-MM-DD  hh:mm"));
+                                    $("#color").val(event.color);
+                                    $('#modalCitaNueva').modal('show');
+                            });  
+    //
+                        },
+                        /*dayClick: function(date, jsEvent, view, resource) {
+                            console.log(
+                                'dayClick',
+                                date.format(),
+                                resource ? resource.id : '(no resource)'
+                            );
+                        }*/
+                    });
+                
+                    }
                 });
-            
-            });
 
     </script>
 
