@@ -200,12 +200,13 @@
                     $('#calendar').fullCalendar('unselect');
                 });
 
-                $('#modalCitaNueva').on('show.bs.modal', function () {
-                });
+                var newDate = new Date();
 
                 $('#calendar').fullCalendar({
                     schedulerLicenseKey: 'GPL-My-Project-Is-Open-Source',
-                    now: '2016-01-07',
+                    now: newDate,
+                    timeFormat: 'hh:mm a',
+                    columnFormat: 'ddd M /D',
                     lang: 'es',
                     selectable: true,
                     selectHelper: true,
@@ -215,6 +216,7 @@
                     scrollTime: '00:00', // undo default 6am scrollTime
                     selectOverlap: false,
                     slotEventOverlap: false,
+                    BusinessHours: true,
                     eventOverlap: function(stillEvent, movingEvent){
                         console.log("@@@@@");
                         return false;
@@ -222,7 +224,8 @@
                     header: {
                         left: 'today prev,next',
                         center: 'Candario oscar',
-                        right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+                        //right: 'timelineDay,timelineThreeDays,agendaWeek,month'
+                        right: 'agendaWeek,month'
                     },
                     defaultView: 'agendaWeek',
                     views: {
